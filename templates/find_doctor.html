@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctor - Medicino</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .doctor-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4CAF50;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .doctor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .doctor-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .doctor-specialty {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .doctor-experience {
+            background: #e8f5e8;
+            color: #27ae60;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .doctor-details {
+            margin: 15px 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        
+        .detail-icon {
+            width: 20px;
+            margin-right: 10px;
+            color: #7f8c8d;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #34495e;
+            min-width: 100px;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            flex: 1;
+        }
+        
+        .consultation-fee {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .search-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .search-tab.active {
+            color: #4CAF50;
+            border-bottom-color: #4CAF50;
+            font-weight: 600;
+        }
+        
+        .search-tab:hover {
+            color: #4CAF50;
+        }
+        
+        .search-content {
+            display: none;
+        }
+        
+        .search-content.active {
+            display: block;
+        }
+        
+        .specialty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .specialty-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .specialty-card:hover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+            transform: translateY(-2px);
+        }
+        
+        .specialty-card.selected {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .results-count {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .loading i {
+            font-size: 2em;
+            margin-bottom: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .no-results i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+        
+        .voice-input {
+            position: relative;
+        }
+        
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-btn:hover {
+            color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .voice-btn.listening {
+            color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Medicino Logo">
+                <h1>Medicino</h1>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('main.index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('main.diagnosis') }}" class="nav-link">Diagnosis</a>
+                <a href="{{ url_for('main.medicines') }}" class="nav-link">Medicines</a>
+                <a href="{{ url_for('main.find_doctor') }}" class="nav-link active">Find Doctor</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="nav-link">Register</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h2><i class="fas fa-user-md"></i> Find Doctor</h2>
+                <p>Search for healthcare providers based on symptoms, specialty, or location</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-tabs">
+                    <button class="search-tab active" data-tab="symptoms">
+                        <i class="fas fa-stethoscope"></i> By Symptoms
+                    </button>
+                    <button class="search-tab" data-tab="specialty">
+                        <i class="fas fa-certificate"></i> By Specialty
+                    </button>
+                    <button class="search-tab" data-tab="search">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <!-- Symptoms Tab -->
+                <div class="search-content active" id="symptoms-tab">
+                    <h3>Describe your symptoms</h3>
+                    <p>Tell us what you're experiencing and we'll find the right specialists for you.</p>
+                    
+                    <div class="form-group">
+                        <label for="symptoms-input">Symptoms:</label>
+                        <div class="voice-input">
+                            <textarea id="symptoms-input" placeholder="e.g., headache, fever, stomach pain, chest pain..." rows="3"></textarea>
+                            <button id="voice-btn" class="voice-btn" title="Voice Input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button id="find-doctors-btn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Find Doctors
+                    </button>
+                </div>
+
+                <!-- Specialty Tab -->
+                <div class="search-content" id="specialty-tab">
+                    <h3>Choose a specialty</h3>
+                    <p>Select a medical specialty to find relevant healthcare providers.</p>
+                    
+                    <div class="specialty-grid" id="specialty-grid">
+                        <!-- Specialties will be loaded here -->
+                    </div>
+                    
+                    <button id="search-specialty-btn" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-search"></i> Search by Specialty
+                    </button>
+                </div>
+
+                <!-- Search Tab -->
+                <div class="search-content" id="search-tab">
+                    <h3>Search healthcare providers</h3>
+                    <p>Search by doctor name, hospital, or any other criteria.</p>
+                    
+                    <div class="form-group">
+                        <label for="search-input">Search:</label>
+                        <input type="text" id="search-input" placeholder="Doctor name, hospital, or specialty...">
+                    </div>
+                    
+                    <button id="search-providers-btn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+
+            <div id="results-section" style="display: none;">
+                <div class="results-header">
+                    <h3><i class="fas fa-user-md"></i> Healthcare Providers</h3>
+                    <div class="results-count" id="results-count"></div>
+                </div>
+                
+                <div id="results-container">
+                    <!-- Results will be loaded here -->
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner"></i>
+                <p>Finding healthcare providers...</p>
+            </div>
+
+            <div id="no-results" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>No providers found</h3>
+                <p>Try adjusting your search criteria or contact us for assistance.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Find Doctor specific JavaScript
+        class FindDoctorApp {
+            constructor() {
+                this.currentTab = 'symptoms';
+                this.selectedSpecialty = null;
+                this.init();
+            }
+
+            init() {
+                this.initTabs();
+                this.initVoiceRecognition();
+                this.loadSpecialties();
+                this.bindEvents();
+            }
+
+            initTabs() {
+                const tabs = document.querySelectorAll('.search-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        this.switchTab(tab.dataset.tab);
+                    });
+                });
+            }
+
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.search-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.search-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                this.currentTab = tabName;
+            }
+
+            initVoiceRecognition() {
+                const voiceBtn = document.getElementById('voice-btn');
+                const symptomsInput = document.getElementById('symptoms-input');
+                let isListening = false;
+
+                if (voiceBtn && symptomsInput) {
+                    voiceBtn.addEventListener('click', () => {
+                        if (!isListening) {
+                            this.startVoiceRecognition(voiceBtn, symptomsInput);
+                        } else {
+                            this.stopVoiceRecognition(voiceBtn);
+                        }
+                    });
+                }
+            }
+
+            startVoiceRecognition(voiceBtn, input) {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    alert('Voice recognition is not supported in this browser. Please use Chrome or Edge.');
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    voiceBtn.classList.add('listening');
+                    voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    input.value = transcript;
+                    input.dispatchEvent(new Event('input'));
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Voice recognition error:', event.error);
+                    isListening = false;
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    
+                    let errorMessage = 'Voice recognition error occurred.';
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage = 'No speech detected. Please try again.';
+                            break;
+                        case 'network':
+                            errorMessage = 'Network error. Please check your connection.';
+                            break;
+                        case 'not-allowed':
+                            errorMessage = 'Microphone access denied. Please allow microphone access.';
+                            break;
+                    }
+                    alert(errorMessage);
+                };
+
+                recognition.start();
+            }
+
+            stopVoiceRecognition(voiceBtn) {
+                isListening = false;
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            }
+
+            async loadSpecialties() {
+                try {
+                    const response = await fetch('/api/healthcare-providers/specialties');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.renderSpecialties(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading specialties:', error);
+                }
+            }
+
+            renderSpecialties(specialties) {
+                const grid = document.getElementById('specialty-grid');
+                if (!grid) return;
+
+                grid.innerHTML = specialties.map(specialty => `
+                    <div class="specialty-card" data-specialty="${specialty}">
+                        <i class="fas fa-user-md"></i>
+                        <h4>${specialty}</h4>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                grid.querySelectorAll('.specialty-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        grid.querySelectorAll('.specialty-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        this.selectedSpecialty = card.dataset.specialty;
+                    });
+                });
+            }
+
+            bindEvents() {
+                // Find doctors by symptoms
+                document.getElementById('find-doctors-btn')?.addEventListener('click', () => {
+                    const symptoms = document.getElementById('symptoms-input').value.trim();
+                    if (symptoms) {
+                        this.findDoctorsBySymptoms(symptoms);
+                    } else {
+                        alert('Please enter your symptoms.');
+                    }
+                });
+
+                // Search by specialty
+                document.getElementById('search-specialty-btn')?.addEventListener('click', () => {
+                    if (this.selectedSpecialty) {
+                        this.searchBySpecialty(this.selectedSpecialty);
+                    } else {
+                        alert('Please select a specialty.');
+                    }
+                });
+
+                // Search providers
+                document.getElementById('search-providers-btn')?.addEventListener('click', () => {
+                    const query = document.getElementById('search-input').value.trim();
+                    if (query) {
+                        this.searchProviders(query);
+                    } else {
+                        alert('Please enter a search term.');
+                    }
+                });
+            }
+
+            async findDoctorsBySymptoms(symptoms) {
+                this.showLoading();
+                
+                try {
+                    const response = await fetch(`/api/healthcare-providers/search-by-symptoms?symptoms=${encodeURIComponent(symptoms)}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.renderResults(data.data);
+                    } else {
+                        this.showError(data.error || 'Failed to find doctors');
+                    }
+                } catch (error) {
+                    console.error('Error finding doctors:', error);
+                    this.showError('An error occurred while searching for doctors');
+                }
+            }
+
+            async searchBySpecialty(specialty) {
+                this.showLoading();
+                
+                try {
+                    const response = await fetch(`/api/healthcare-providers?specialty=${encodeURIComponent(specialty)}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.renderResults(data.data);
+                    } else {
+                        this.showError(data.error || 'Failed to search by specialty');
+                    }
+                } catch (error) {
+                    console.error('Error searching by specialty:', error);
+                    this.showError('An error occurred while searching');
+                }
+            }
+
+            async searchProviders(query) {
+                this.showLoading();
+                
+                try {
+                    const response = await fetch(`/api/healthcare-providers/search?query=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.renderResults({ providers: data.data });
+                    } else {
+                        this.showError(data.error || 'Failed to search providers');
+                    }
+                } catch (error) {
+                    console.error('Error searching providers:', error);
+                    this.showError('An error occurred while searching');
+                }
+            }
+
+            renderResults(data) {
+                this.hideLoading();
+                
+                const resultsSection = document.getElementById('results-section');
+                const resultsContainer = document.getElementById('results-container');
+                const resultsCount = document.getElementById('results-count');
+                const noResults = document.getElementById('no-results');
+
+                if (!data.providers || data.providers.length === 0) {
+                    resultsSection.style.display = 'none';
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                resultsSection.style.display = 'block';
+                noResults.style.display = 'none';
+
+                resultsCount.textContent = `Found ${data.providers.length} provider(s)`;
+
+                resultsContainer.innerHTML = data.providers.map(provider => `
+                    <div class="doctor-card">
+                        <div class="doctor-header">
+                            <div>
+                                <div class="doctor-name">${provider.doctor_name}</div>
+                                <div class="doctor-specialty">${provider.specialty}</div>
+                            </div>
+                            <div class="doctor-experience">
+                                ${provider.experience_years ? `${provider.experience_years} years` : 'Experience not specified'}
+                            </div>
+                        </div>
+                        
+                        <div class="doctor-details">
+                            <div class="detail-row">
+                                <i class="fas fa-hospital detail-icon"></i>
+                                <span class="detail-label">Hospital/Clinic:</span>
+                                <span class="detail-value">${provider.hospital_clinic}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <i class="fas fa-map-marker-alt detail-icon"></i>
+                                <span class="detail-label">Address:</span>
+                                <span class="detail-value">${provider.hospital_clinic_address}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <i class="fas fa-phone detail-icon"></i>
+                                <span class="detail-label">Contact:</span>
+                                <span class="detail-value">${provider.hospital_clinic_contact_number}</span>
+                            </div>
+                            
+                            ${provider.availability ? `
+                                <div class="detail-row">
+                                    <i class="fas fa-clock detail-icon"></i>
+                                    <span class="detail-label">Availability:</span>
+                                    <span class="detail-value">${provider.availability}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${provider.languages_spoken ? `
+                                <div class="detail-row">
+                                    <i class="fas fa-language detail-icon"></i>
+                                    <span class="detail-label">Languages:</span>
+                                    <span class="detail-value">${provider.languages_spoken}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${provider.consultation_fee ? `
+                            <div class="consultation-fee">
+                                <i class="fas fa-dollar-sign"></i>
+                                Consultation Fee: $${provider.consultation_fee}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            showLoading() {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results-section').style.display = 'none';
+                document.getElementById('no-results').style.display = 'none';
+            }
+
+            hideLoading() {
+                document.getElementById('loading').style.display = 'none';
+            }
+
+            showError(message) {
+                this.hideLoading();
+                alert(message);
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FindDoctorApp();
+        });
+    </script>
+</body>
+</html> 
