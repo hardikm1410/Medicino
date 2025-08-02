@@ -199,6 +199,3 @@ if __name__ == '__main__':
     # Ensure tables are created on application startup
     create_tables()
     app.run(debug=True)
-```
-### Summary of Changes:
-
