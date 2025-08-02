@@ -10,6 +10,7 @@ import os
 
 app = Flask(__name__)
 app.secret_key = '773b8a8453970d5f38c0a8e3e49b85f9'  # Change this to a secure secret key
+CORS(app)
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -379,3 +380,4 @@ if __name__ == '__main__':
     print("Starting Medicino Web Portal...")
     print("Access the application at: http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
