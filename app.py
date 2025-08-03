@@ -17,8 +17,8 @@ CORS(app)
 
 # --- CONFIGURATION (Updated) ---
 # Read secrets from environment variables
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-mongo_uri = os.getenv('MONGO_URI')
+app.config['JWT_SECRET_KEY'] = os.getenv('bd3768ab4fc947ec8b40f125fcb4fb63f2290b362e5401b4ebfbc632c4774244')
+
 
 # --- DATABASE SETUP (Updated) ---
 DATABASE = 'medicino.db'
@@ -214,4 +214,5 @@ if __name__ == '__main__':
     # Ensure tables are created on application startup
     create_tables()
     app.run(debug=True)
+
 
