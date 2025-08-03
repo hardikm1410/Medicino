@@ -6,11 +6,27 @@ import sqlite3
 import re
 import os
 from datetime import datetime
+from dotenv import load_dotenv # <-- Add this import
 
-# Initialize the Flask application
+load_dotenv() # <-- Add this line to load variables for local testing
+
+# ... other imports
+
 app = Flask(__name__)
-# IMPORTANT: Change this to a secure, randomly generated secret key in a production environment
-app.secret_key = 'your-secure-secret-key-goes-here'
+CORS(app)
+
+# --- CONFIGURATION (Updated) ---
+# Read secrets from environment variables
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+mongo_uri = os.getenv('MONGO_URI')
+
+# --- DATABASE SETUP (Updated) ---
+DATABASE = 'medicino.db'
+client = MongoClient(mongo_uri)
+db = client['medicino_db']
+users_collection = db['users']
+
+
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -18,10 +34,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # Database Configuration
-DATABASE = 'medicino.db'
+
 
 # Apply CORS to the entire application to allow cross-origin requests from your frontend.
-CORS(app)
 
 class User(UserMixin):
     def __init__(self, id, username, email):
@@ -199,3 +214,4 @@ if __name__ == '__main__':
     # Ensure tables are created on application startup
     create_tables()
     app.run(debug=True)
+
