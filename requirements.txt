@@ -37,4 +37,5 @@ urllib3==2.5.0
 Werkzeug==2.3.7
 gunicorn
 pymango
+python-dotenv
 
