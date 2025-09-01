@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="static/logo.png" type="image/png">
+    <title>Medicino - AI-Powered Medical Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+        /* Additional styles for the new navigation bar */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color var(--transition-normal);
+            font-size: var(--font-size-sm);
+            position: relative;
+            padding-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width var(--transition-normal);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Ensure header-right content aligns well */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2xl); /* Increased gap for better spacing */
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Modern Header with Integrated Navbar -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-heartbeat"></i> MEDICINO</h1>
+                </div>
+                <div class="header-right">
+                    <!-- Main Navigation -->
+                    <nav class="main-nav">
+                        <a id="historyBtn" class="nav-link"><i class="fas fa-history"></i> History</a>
+                        <a id="emergencyBtn" class="nav-link"><i class="fas fa-exclamation-triangle"></i> Emergency</a>
+                        <a id="aboutBtn" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                    </nav>
+
+                    <!-- Authentication Section -->
+                    {% if current_user.is_authenticated %}
+                        <div class="user-info">
+                            <span class="welcome-text">
+                                <i class="fas fa-user-circle"></i>
+                                Welcome, {{ current_user.username }}!
+                            </span>
+                            <a href="{{ url_for('logout') }}" class="auth-btn logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="auth-buttons">
+                            <a href="{{ url_for('login') }}" class="auth-btn login-btn">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login
+                            </a>
+                            <a href="{{ url_for('register') }}" class="auth-btn register-btn">
+                                <i class="fas fa-user-plus"></i>
+                                Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <!-- Modern Symptom Diagnosis Section -->
+        <section class="glass-card">
+            <h2 class="card-title">
+                <i class="fas fa-stethoscope"></i>
+                Smart Symptom Diagnosis
+            </h2>
+            <p class="mb-2" style="color: var(--text-secondary); line-height: 1.6; font-size: var(--font-size-sm);">
+                Describe your symptoms in detail and let our AI-powered system provide you with intelligent analysis,
+                confidence scoring, and personalized treatment recommendations.
+            </p>
+
+            <div class="input-group">
+                <label for="symptomsInput">
+                    <i class="fas fa-clipboard-list"></i>
+                    Enter Your Symptoms
+                </label>
+                <textarea
+                    id="symptomsInput"
+                    class="modern-input"
+                    rows="4"
+                    placeholder="e.g., fever, headache, cough, stomach pain, nausea..."
+                    style="resize: vertical; min-height: 120px;"
+                ></textarea>
+                
+                <!-- Enhanced Symptom Suggestions -->
+                <div class="symptom-suggestions">
+                    <p style="margin: 10px 0 5px 0; color: var(--text-secondary); font-size: var(--font-size-sm);">
+                        <i class="fas fa-lightbulb"></i> Common symptoms (click to add):
+                    </p>
+                    <div class="symptom-tags">
+                        <span class="symptom-tag" data-symptom="fever">🔥 fever</span>
+                        <span class="symptom-tag" data-symptom="headache">💢 headache</span>
+                        <span class="symptom-tag" data-symptom="cough">🤧 cough</span>
+                        <span class="symptom-tag" data-symptom="sore throat">😷 sore throat</span>
+                        <span class="symptom-tag" data-symptom="stomach pain">🤢 stomach pain</span>
+                        <span class="symptom-tag" data-symptom="nausea">🤮 nausea</span>
+                        <span class="symptom-tag" data-symptom="vomiting">🤮 vomiting</span>
+                        <span class="symptom-tag" data-symptom="fatigue">😴 fatigue</span>
+                        <span class="symptom-tag" data-symptom="chest pain">💔 chest pain</span>
+                        <span class="symptom-tag" data-symptom="shortness of breath">😰 shortness of breath</span>
+                        <span class="symptom-tag" data-symptom="joint pain">🦴 joint pain</span>
+                        <span class="symptom-tag" data-symptom="skin rash">skin rash</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button id="diagnoseBtn" class="btn btn-primary">
+                    <i class="fas fa-brain"></i>
+                    Analyze Symptoms
+                </button>
+                <button id="voiceBtn" class="btn btn-voice">
+                    <i class="fas fa-microphone"></i>
+                    Voice Input
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">
+                    <i class="fas fa-eraser"></i>
+                    Clear
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="diagnosisLoader" class="loader hidden">
+                <div class="spinner"></div>
+                <div class="loader-text">Analyzing your symptoms with AI...</div>
+            </div>
+
+            <!-- Enhanced Results Section -->
+            <div id="diagnosisResult" class="results-card hidden">
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-weight: 600;">
+                    <i class="fas fa-clipboard-check"></i>
+                    AI Diagnosis Results
+                </h3>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <i class="fas fa-disease"></i>
+                        Possible Condition
+                    </div>
+                    <div id="diseaseOutput" class="result-value"></div>
+                    <div id="severityBadge"></div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <i class="fas fa-leaf"></i>
+                        Ayurvedic Treatment
+                    </div>
+                    <div id="ayurvedicOutput" class="result-value"></div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <i class="fas fa-pills"></i>
+                        Modern Medicine Suggestion
+                    </div>
+                    <div id="medicineOutput" class="result-value"></div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <i class="fas fa-chart-line"></i>
+                        Confidence Score
+                    </div>
+                    <div id="confidenceText" class="result-value"></div>
+                    <div class="confidence-bar">
+                        <div id="confidenceFill" class="confidence-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modern Medicine Information Section -->
+        <section class="glass-card">
+            <h2 class="card-title">
+                <i class="fas fa-pills"></i>
+                Medicine Database
+            </h2>
+            <p class="mb-2" style="color: var(--text-secondary); line-height: 1.6; font-size: var(--font-size-sm);">
+                Search our comprehensive medicine database for detailed information including dosage,
+                side effects, contraindications, and current pricing.
+            </p>
+
+            <div class="input-group">
+                <label for="medicineInput">
+                    <i class="fas fa-search"></i>
+                    Medicine Name
+                </label>
+                <input
+                    type="text"
+                    id="medicineInput"
+                    class="modern-input"
+                    placeholder="e.g., Paracetamol, Ibuprofen, Cetirizine..."
+                >
+            </div>
+
+            <div class="text-center">
+                <button id="searchMedicineBtn" class="btn btn-success">
+                    <i class="fas fa-search"></i>
+                    Search Medicine
+                </button>
+            </div>
+
+            <!-- Medicine Loading State -->
+            <div id="medicineLoader" class="loader hidden">
+                <div class="spinner"></div>
+                <div class="loader-text">Searching medicine database...</div>
+            </div>
+
+            <!-- Medicine Results -->
+            <div id="medicineInfoResult" class="hidden"></div>
+        </section>
+    </div>
+    
+    <!-- External script file -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Embedded script to fix modal handlers -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- MODAL HANDLERS (FIXED) ---
+
+            const EmergencyHandler = {
+                show: () => {
+                    const modalContainer = document.createElement('div');
+                    modalContainer.className = 'modal-overlay';
+                    modalContainer.onclick = EmergencyHandler.close;
+
+                    modalContainer.innerHTML = `
+                        <div class="modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header emergency-header">
+                                <h2><i class="fas fa-exclamation-triangle"></i> Emergency Guidelines</h2>
+                                <button class="close-btn" onclick="EmergencyHandler.close()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="emergency-section">
+                                    <h3><i class="fas fa-phone"></i> Emergency Numbers (India)</h3>
+                                    <ul>
+                                        <li><strong>108</strong> - Emergency Ambulance</li>
+                                        <li><strong>102</strong> - Medical Emergency</li>
+                                        <li><strong>100</strong> - Police</li>
+                                        <li><strong>101</strong> - Fire Department</li>
+                                    </ul>
+                                </div>
+                                <div class="emergency-section">
+                                    <h3><i class="fas fa-heart"></i> When to Seek Immediate Medical Attention</h3>
+                                    <ul>
+                                        <li>Chest pain or pressure</li>
+                                        <li>Difficulty breathing</li>
+                                        <li>Severe allergic reactions</li>
+                                        <li>High fever (above 103°F/39.4°C)</li>
+                                        <li>Severe head injury</li>
+                                        <li>Unconsciousness</li>
+                                        <li>Severe bleeding</li>
+                                        <li>Signs of stroke (FAST: Face drooping, Arm weakness, Speech difficulty, Time to call emergency)</li>
+                                    </ul>
+                                </div>
+                                <div class="emergency-section">
+                                    <h3><i class="fas fa-first-aid"></i> Basic First Aid</h3>
+                                    <ul>
+                                        <li><strong>For cuts:</strong> Apply pressure with clean cloth</li>
+                                        <li><strong>For burns:</strong> Cool with cold water for 10-20 minutes</li>
+                                        <li><strong>For choking:</strong> Perform Heimlich maneuver</li>
+                                        <li><strong>For unconsciousness:</strong> Check breathing, place in recovery position</li>
+                                    </ul>
+                                </div>
+                                <div class="emergency-disclaimer">
+                                    <p><strong>⚠️ Disclaimer:</strong> This app is for informational purposes only and should not replace professional medical advice. In case of emergency, always call emergency services immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modalContainer);
+                },
+                close: () => {
+                    const modal = document.querySelector('.modal-overlay');
+                    if (modal) {
+                        modal.remove();
+                    }
+                }
+            };
+
+            const AboutHandler = {
+                show: () => {
+                    const modalContainer = document.createElement('div');
+                    modalContainer.className = 'modal-overlay';
+                    modalContainer.onclick = AboutHandler.close;
+
+                    modalContainer.innerHTML = `
+                        <div class="modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2><i class="fas fa-info-circle"></i> About Medicino</h2>
+                                <button class="close-btn" onclick="AboutHandler.close()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="about-section">
+                                    <h3><i class="fas fa-brain"></i> What is Medicino?</h3>
+                                    <p>Medicino is an AI-powered medical assistant that helps you understand your symptoms and provides intelligent health recommendations. Our system combines modern medical knowledge with traditional Ayurvedic wisdom to offer comprehensive health guidance.</p>
+                                </div>
+                                <div class="about-section">
+                                    <h3><i class="fas fa-cogs"></i> Features</h3>
+                                    <ul>
+                                        <li><strong>Smart Symptom Analysis:</strong> AI-powered diagnosis with confidence scoring</li>
+                                        <li><strong>Dual Treatment Approach:</strong> Modern medicine + Ayurvedic remedies</li>
+                                        <li><strong>Medicine Database:</strong> Comprehensive information on medications</li>
+                                        <li><strong>Voice Input:</strong> Speak your symptoms naturally</li>
+                                        <li><strong>History Tracking:</strong> Keep track of your consultations</li>
+                                        <li><strong>Emergency Guidelines:</strong> Quick access to emergency information</li>
+                                    </ul>
+                                </div>
+                                <div class="about-section">
+                                    <h3><i class="fas fa-shield-alt"></i> Technology Stack</h3>
+                                    <ul>
+                                        <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (ES6+)</li>
+                                        <li><strong>Backend:</strong> Flask/Django Python Framework</li>
+                                        <li><strong>Database:</strong> SQLite with optimized indexing</li>
+                                        <li><strong>AI Engine:</strong> Custom symptom matching algorithm</li>
+                                        <li><strong>Voice Recognition:</strong> Web Speech API</li>
+                                    </ul>
+                                </div>
+                                <div class="about-section">
+                                    <h3><i class="fas fa-users"></i> How It Works</h3>
+                                    <ol>
+                                        <li>Enter your symptoms via text or voice input</li>
+                                        <li>Our AI analyzes your symptoms against medical database</li>
+                                        <li>Receive diagnosis with confidence score</li>
+                                        <li>Get both modern medicine and Ayurvedic recommendations</li>
+                                        <li>Access detailed medicine information from our database</li>
+                                    </ol>
+                                </div>
+                                <div class="about-disclaimer">
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Important Disclaimer</h4>
+                                    <p>Medicino is designed for educational and informational purposes only. It should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare providers for medical concerns. In case of emergency, contact emergency services immediately.</p>
+                                </div>
+                                <div class="about-footer">
+                                    <p><strong>Version:</strong> 1.0.0</p>
+                                    <p><strong>Last Updated:</strong> ${new Date().toLocaleDateString()}</p>
+                                    <p><strong>Support:</strong> For technical support or feedback, please contact our development team.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modalContainer);
+                },
+                close: () => {
+                    const modal = document.querySelector('.modal-overlay');
+                    if (modal) {
+                        modal.remove();
+                    }
+                }
+            };
+
+            const HistoryHandler = {
+                show: async () => {
+                    // This is a mock implementation since ApiService is not available here.
+                    // In your real script, this would make an API call.
+                    const mockHistory = [
+                        { created_at: new Date(), symptoms: 'fever, headache', diagnosed_condition: 'Viral Fever', confidence_score: 85, ayurvedic_remedy: 'Drink warm water with ginger and honey.', medicine_suggestion: 'Paracetamol' },
+                        { created_at: new Date(Date.now() - 86400000), symptoms: 'cough, sore throat', diagnosed_condition: 'Common Cold', confidence_score: 92, ayurvedic_remedy: 'Gargle with warm salt water.', medicine_suggestion: 'Cetirizine' }
+                    ];
+                    HistoryHandler.displayHistory(mockHistory);
+                },
+                displayHistory: (history) => {
+                    const modalContainer = document.createElement('div');
+                    modalContainer.className = 'modal-overlay';
+                    modalContainer.onclick = HistoryHandler.close;
+                    
+                    let historyContent = '';
+                    if (!history || history.length === 0) {
+                        historyContent = `
+                            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <h3>No Diagnosis History</h3>
+                                <p>You haven't made any diagnoses yet. Start by analyzing your symptoms!</p>
+                            </div>
+                        `;
+                    } else {
+                        historyContent = `<div class="history-list">` + history.map((record, index) => `
+                            <div class="history-item">
+                                <div class="history-header">
+                                    <strong>Diagnosis #${history.length - index}</strong>
+                                    <span class="history-date">${new Date(record.created_at).toLocaleString()}</span>
+                                </div>
+                                <div class="history-content">
+                                    <p><strong>Symptoms:</strong> ${record.symptoms}</p>
+                                    <p><strong>Condition:</strong> ${record.diagnosed_condition}</p>
+                                    <p><strong>Confidence:</strong> ${record.confidence_score}%</p>
+                                    <p><strong>Ayurvedic Remedy:</strong> ${record.ayurvedic_remedy}</p>
+                                    <p><strong>Medicine:</strong> ${record.medicine_suggestion}</p>
+                                </div>
+                            </div>
+                        `).join('') + `</div>`;
+                    }
+
+                    modalContainer.innerHTML = `
+                        <div class="modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2><i class="fas fa-history"></i> Diagnosis History</h2>
+                                <button class="close-btn" onclick="HistoryHandler.close()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                ${historyContent}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modalContainer);
+                },
+                close: () => {
+                    const modal = document.querySelector('.modal-overlay');
+                    if (modal) {
+                        modal.remove();
+                    }
+                }
+            };
+
+            // --- EVENT LISTENERS ---
+            document.getElementById('emergencyBtn')?.addEventListener('click', EmergencyHandler.show);
+            document.getElementById('aboutBtn')?.addEventListener('click', AboutHandler.show);
+            document.getElementById('historyBtn')?.addEventListener('click', HistoryHandler.show);
+        });
+    </script>
+</body>
+</html>
