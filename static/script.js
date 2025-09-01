@@ -1,12 +1,11 @@
 // Medicino Web Application - Complete JavaScript Implementation
-// Author: AI Assistant
 // Version: 1.0
 
 // Global Configuration
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:5000/api',
-    FLASK_BASE_URL: 'http://localhost:5000',
-    DJANGO_BASE_URL: 'http://localhost:8000',
+    API_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
+    FLASK_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
+    DJANGO_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
     CURRENT_BACKEND: 'flask', // 'flask' or 'django'
     VOICE_RECOGNITION_TIMEOUT: 10000,
     API_TIMEOUT: 10000
@@ -962,3 +961,4 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 console.log('📋 Medicino JavaScript loaded successfully');
+
