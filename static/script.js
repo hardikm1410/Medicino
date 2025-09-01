@@ -3,9 +3,9 @@
 
 // Global Configuration
 const CONFIG = {
-    API_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
-    FLASK_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
-    DJANGO_BASE_URL: 'https://mediceno.onrender.com/6eb682b20651943c56420190900e6780',
+    API_BASE_URL: 'https://mediceno.onrender.com',
+    FLASK_BASE_URL: 'https://mediceno.onrender.com',
+    DJANGO_BASE_URL: 'https://mediceno.onrender.com',
     CURRENT_BACKEND: 'flask', // 'flask' or 'django'
     VOICE_RECOGNITION_TIMEOUT: 10000,
     API_TIMEOUT: 10000
@@ -961,4 +961,5 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 console.log('📋 Medicino JavaScript loaded successfully');
+
 
