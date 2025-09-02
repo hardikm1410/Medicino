@@ -7,7 +7,7 @@ from database_setup import db, User
 import os
 
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
-app.secret_key = 'your_secret_key'
+app.secret_key = '6eb682b20651943c56420190900e6780'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///../medicino.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -57,3 +57,4 @@ def handler(environ, start_response):
     from werkzeug.serving import run_simple
     application = DispatcherMiddleware(app)
     return application(environ, start_response)
+
